@@ -18,7 +18,7 @@ namespace Day08
         {
             List<Instruction> instructionSet = CreateInstructionSet();
             RunSimulation(instructionSet, out int accumulator);
-            Console.WriteLine($"Part 1: Ended with acc: {accumulator}");
+            Console.WriteLine($"Part 1: Ended with acc: {accumulator}\n");
         }
 
         private static void Part2()
