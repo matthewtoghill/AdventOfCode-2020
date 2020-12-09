@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace Day09
 {
@@ -10,28 +11,24 @@ namespace Day09
         private static List<long> allValues = new List<long>();
         static void Main(string[] args)
         {
-            long x = Part1();
+            long x = Part1(25);
             Part2(x);
             Console.ReadLine();
         }
 
-        private static long Part1()
+        private static long Part1(int preambleSize)
         {
             long result = 0;
+            allValues = input.Select(long.Parse).ToList();
 
-            foreach (var item in input)
-            {
-                allValues.Add(long.Parse(item));
-            }
-
-            for (int i = 25; i < allValues.Count; i++)
+            for (int i = preambleSize; i < allValues.Count; i++)
             {
                 long thisNum = allValues[i];
                 bool combinationFound = false;
 
-                for (int j = i - 25; j < i - 1; j++)
+                for (int j = i - preambleSize; j < i - 1; j++)
                 {
-                    for (int k = i - 24; k < i; k++)
+                    for (int k = i - (preambleSize - 1); k < i; k++)
                     {
                         if (allValues[j] + allValues[k] == thisNum)
                         {
