@@ -7,7 +7,7 @@ namespace Day06
 {
     class Program
     {
-        private static string[] input = File.ReadAllText(@"..\..\..\data\day06.txt").Split(new string[] { "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
+        private static string[] input = File.ReadAllText(@"..\..\..\data\day06.txt").Split(new string[] { "\r\n\r\n" }, StringSplitOptions.RemoveEmptyEntries);
         static void Main(string[] args)
         {
             BothParts();
@@ -23,7 +23,7 @@ namespace Day06
             foreach (var group in input)
             {
                 Dictionary<char, int> groupYesAnswers = new Dictionary<char, int>();
-                string[] lines = group.Split('\n');
+                string[] lines = group.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var line in lines)
                 {
