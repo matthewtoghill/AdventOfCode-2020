@@ -49,5 +49,11 @@
   <ItemGroup>
     <None Include="App.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\AoCHelpers\AoCHelpers.csproj">
+      <Project>{c514e241-758b-44ac-881a-ad19db4d7694}</Project>
+      <Name>AoCHelpers</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
