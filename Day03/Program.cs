@@ -46,8 +46,7 @@ namespace Day03
 
             do
             {
-                x += stepsRight;
-                x %= mapWidth;
+                x = (x + stepsRight) % mapWidth;
                 y += stepsDown;
                 if (input[y][x] == '#') treesHit++;
             } while (y < map.Length - 1);
