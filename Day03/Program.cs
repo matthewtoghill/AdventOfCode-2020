@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace Day03
 {
@@ -50,7 +47,7 @@ namespace Day03
             do
             {
                 x += stepsRight;
-                if (x > mapWidth - 1) x -= mapWidth;
+                x %= mapWidth;
                 y += stepsDown;
                 if (input[y][x] == '#') treesHit++;
             } while (y < map.Length - 1);
