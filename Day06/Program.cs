@@ -1,4 +1,5 @@
-﻿using System;
+﻿using AoCHelpers;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,7 +8,7 @@ namespace Day06
 {
     class Program
     {
-        private static string[] input = File.ReadAllText(@"..\..\..\data\day06.txt").Split(new string[] { "\r\n\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+        private static string[] input = File.ReadAllText(@"..\..\..\data\day06.txt").Split(new string[] { "\r\n\r\n", "\n\n" }, StringSplitOptions.RemoveEmptyEntries);
         static void Main(string[] args)
         {
             BothParts();
@@ -23,20 +24,13 @@ namespace Day06
             foreach (var group in input)
             {
                 Dictionary<char, int> groupYesAnswers = new Dictionary<char, int>();
-                string[] lines = group.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                string[] lines = group.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var line in lines)
                 {
                     foreach (var c in line)
                     {
-                        if (groupYesAnswers.ContainsKey(c))
-                        {
-                            groupYesAnswers[c]++;
-                        }
-                        else
-                        {
-                            groupYesAnswers.Add(c, 1);
-                        }
+                        groupYesAnswers.IncrementAt(c);
                     }
                 }
 
