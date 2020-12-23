@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace AoCHelpers
 {
@@ -38,6 +39,29 @@ namespace AoCHelpers
             char[] chars = input.ToCharArray();
             Array.Sort(chars);
             return new string(chars);
+        }
+
+        public static void PrintAllLines(this string[] lines, bool includeLineNums = false)
+        {
+            if (includeLineNums)
+            {
+                int count = lines.Length;
+                string formatString = " {0," + count.ToString().Length + "}: {1}";
+                for (int i = 0; i < count; i++)
+                    Console.WriteLine(formatString, i, lines[i]);
+            }
+            else
+            {
+                foreach (var line in lines)
+                    Console.WriteLine(line);
+            }
+        }
+
+        public static string ReplaceAtIndex(this string text, int index, char c)
+        {
+            StringBuilder sb = new StringBuilder(text);
+            sb[index] = c;
+            return sb.ToString();
         }
     }
 }

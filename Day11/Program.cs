@@ -1,5 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using AoCHelpers;
+using System;
 using System.IO;
 using System.Linq;
 
@@ -7,268 +7,136 @@ namespace Day11
 {
     class Program
     {
-        private static string[] input = File.ReadAllLines(@"..\..\..\data\day11.txt");
+        private static readonly string[] input = File.ReadAllLines(@"..\..\..\data\day11.txt");
+        //                                                         NW        N       NE        W       E       SW       S       SE
+        private static readonly (int x, int y)[] directions = { (-1, -1), (0, -1), (1, -1), (-1, 0), (1, 0), (-1, 1), (0, 1), (1, 1) };
         private static int maxRows, maxCols;
+        private static string[] currRoom;
         static void Main(string[] args)
         {
-            Part1();
+            int seatsOccupiedAtEnd;
+
+            // Part 1
+            seatsOccupiedAtEnd = SimulateRoomChanges(4, false);
+            Console.WriteLine($"Part 1: {seatsOccupiedAtEnd}");
+
+            // Part 2
+            seatsOccupiedAtEnd = SimulateRoomChanges(5, true);
+            Console.WriteLine($"\nPart 2: {seatsOccupiedAtEnd}");
+
             Console.ReadLine();
         }
 
-        private static void Part1()
+
+        private static int SimulateRoomChanges(int occupiedCountReq, bool skipFloorSpaces)
         {
             maxRows = input.Length;
             maxCols = input[0].Length;
 
-            Console.WriteLine($"Rows: {input.Length}");
-            Console.WriteLine($"Columns: {input[0].Length}");
+            currRoom = input.ToArray();
 
-            // Create initial list of seats from input data
-            Room room = new Room();
-            room.Height = maxRows;
-            room.Width = maxCols;
+            int emptyCount = currRoom.Sum(s => s.Count(c => c == 'L'));
+            int occupiedCount = currRoom.Sum(s => s.Count(c => c == '#'));
+            int floorCount = currRoom.Sum(s => s.Count(c => c == '.'));
 
-            List<Room> roomStates = new List<Room>();
+            //Console.WriteLine($"Empty: {emptyCount}, Occupied: {occupiedCount}, Floor: {floorCount}\n");
 
-            for (int row = 0; row < input.Length; row++)
-                for (int col = 0; col < input[row].Length; col++)
-                    room.Seats.Add(new Seat(col, row, input[row][col]));
-
-            // Add initial room state to roomStates
-            roomStates.Add(room);
-
-            //room.Print();
-
-            int emptyCount = room.Seats.Count(s => s.Status == Seat.SeatStatus.Empty);
-            int occupiedCount = room.Seats.Count(s => s.Status == Seat.SeatStatus.Occupied);
-            int floorCount = room.Seats.Count(s => s.Status == Seat.SeatStatus.Floor);
-
-            Console.WriteLine($"Empty: {emptyCount}, Occupied: {occupiedCount}, Floor: {floorCount}, Total: {room.Seats.Count}");
-
-            // Simulate each room state change and store in roomStates list
-            // Keep a count of the number of seats that change status
-            // Add new room state to list of roomStates if there are any seat changes
-            // End when a room has no seats that change status
-            int seatStatusChanges = 0, totalSeatStatusChanges = 0;
+            // Simulate room changes
+            int totalSeatStatusChanges = 0;
             bool keepGoing = true;
             while (keepGoing)
             {
-                Room nextRoom = new Room(roomStates.Last());
+                int seatStatusChanges = 0;
 
-                //Console.WriteLine();
-                //nextRoom.Print();
+                // Create a copy of the room 
+                string[] nextRoom = currRoom.ToArray();
 
-                seatStatusChanges = nextRoom.SeatChanges;
-
-                emptyCount = nextRoom.Seats.Count(s => s.Status == Seat.SeatStatus.Empty);
-                occupiedCount = nextRoom.Seats.Count(s => s.Status == Seat.SeatStatus.Occupied);
-                floorCount = nextRoom.Seats.Count(s => s.Status == Seat.SeatStatus.Floor);
-
-                Console.WriteLine($"\nEmpty: {emptyCount}, Occupied: {occupiedCount}, Floor: {floorCount}, Total: {room.Seats.Count}, Changed: {nextRoom.SeatChanges}");
-
-
-                if (seatStatusChanges > 0)
+                // Check each seat in the current room array
+                // update the next room array if it meets criteria to change seat status
+                for (int row = 0; row < nextRoom.Length; row++)
                 {
-                    totalSeatStatusChanges += seatStatusChanges;
-                    roomStates.Add(nextRoom);
-                }
-
-                keepGoing = seatStatusChanges > 0;
-            }
-
-            Console.WriteLine($"Total room iterations: {roomStates.Count}");
-            Console.WriteLine($"Total seat changes: {totalSeatStatusChanges}");
-
-        }
-    }
-
-    public class Room
-    {
-        public List<Seat> Seats { get; set; } = new List<Seat>();
-        public int SeatChanges { get; set; } = 0;
-        public int Width { get; set; }
-        public int Height { get; set; }
-
-        public Room()
-        {
-        }
-
-        public Room(Room previousState)
-        {
-            Width = previousState.Width;
-            Height = previousState.Height;
-
-            // Seat Status Change rules:
-            // If a Seat is Empty, and there are no Occupied seats adjacent to it (up,down,left,right,diagonal)
-            //      Seat becomes Occupied
-            // If a Seat is Occupied and 4 or more seats adjacent to it are also Occupied 
-            //      Seat becomes Empty
-
-            // Check the 8 adjacent seats
-
-            for (int i = 0; i < previousState.Seats.Count; i++)
-            {
-                // Create the Seat as a copy of the seat from the previous room state
-                Seat thisSeat = new Seat(previousState.Seats[i]);
-
-                // Skip floor spaces
-                if (thisSeat.Status != Seat.SeatStatus.Floor)
-                {
-                    List<Seat.SeatStatus> adjacentSeatStatuses = new List<Seat.SeatStatus>();
-                    // The up to 8 adjacent Seats can be found as:
-                    // i = thisSeat index
-
-                    // NW N NE      NW = i - rowWidth - 1,  N = i - rowWidth,   NE = i - rowWidth + 1
-                    // W  i  E      W  = i - 1,                                 E  = i + 1
-                    // SW S SE      SW = i + rowWidth - 1,  S = i + rowWidth,   SE = i + rowWdith + 1
-
-                    // Need to also check whether the values are on the expected Row by checking the Y value
-
-                    // North West
-                    if (i - Width - 1 >= 0)
+                    for (int col = 0; col < nextRoom[row].Length; col++)
                     {
-                        Seat nwSeat = previousState.Seats[i - Width - 1];
-                        if (nwSeat.Y == thisSeat.Y - 1) adjacentSeatStatuses.Add(nwSeat.Status);
-                    }
+                        char thisSeat = currRoom[row][col];
+                        if (thisSeat == '.') continue; // Skip floor spaces
 
-                    // North
-                    if (i - Width >= 0)
-                    {
-                        Seat nSeat = previousState.Seats[i - Width];
-                        if (nSeat.Y == thisSeat.Y - 1) adjacentSeatStatuses.Add(nSeat.Status);
-                    }
+                        int occupiedNearby = CountNearbyOccupiedSeats(col, row, skipFloorSpaces);
 
-                    // North East
-                    if (i - Width + 1 >= 0)
-                    {
-                        Seat neSeat = previousState.Seats[i - Width + 1];
-                        if (neSeat.Y == thisSeat.Y - 1) adjacentSeatStatuses.Add(neSeat.Status);
-                    }
-
-                    // West
-                    if (i - 1 >= 0)
-                    {
-                        Seat wSeat = previousState.Seats[i - 1];
-                        if (wSeat.Y == thisSeat.Y) adjacentSeatStatuses.Add(wSeat.Status);
-                    }
-
-                    // East
-                    if (i + 1 < previousState.Seats.Count)
-                    {
-                        Seat eSeat = previousState.Seats[i + 1];
-                        if (eSeat.Y == thisSeat.Y) adjacentSeatStatuses.Add(eSeat.Status);
-                    }
-
-                    // South West
-                    if (i + Width - 1 < previousState.Seats.Count)
-                    {
-                        Seat swSeat = previousState.Seats[i + Width - 1];
-                        if (swSeat.Y == thisSeat.Y + 1) adjacentSeatStatuses.Add(swSeat.Status);
-                    }
-
-                    // South
-                    if (i + Width < previousState.Seats.Count)
-                    {
-                        Seat sSeat = previousState.Seats[i + Width];
-                        if (sSeat.Y == thisSeat.Y + 1) adjacentSeatStatuses.Add(sSeat.Status);
-                    }
-
-                    // South East
-                    if (i + Width + 1 < previousState.Seats.Count)
-                    {
-                        Seat seSeat = previousState.Seats[i + Width + 1];
-                        if (seSeat.Y == thisSeat.Y + 1) adjacentSeatStatuses.Add(seSeat.Status);
-                    }
-
-                    int countOccupied = adjacentSeatStatuses.Count(s => s == Seat.SeatStatus.Occupied);
-                    if (thisSeat.Status == Seat.SeatStatus.Empty && countOccupied == 0)
-                    {
-                        thisSeat.Status = Seat.SeatStatus.Occupied;
-                        //SeatChanges++;
-                    }
-                    else // Occupied
-                    {
-                        if (countOccupied >= 4)
+                        // If the seat is currently Occupied and there are 4 or more occupied nearby
+                        // Then change the seat to Empty and continue to the next seat
+                        if (thisSeat == '#' && occupiedNearby >= occupiedCountReq)
                         {
-                            thisSeat.Status = Seat.SeatStatus.Empty;
-                            //SeatChanges++;
+                            nextRoom[row] = nextRoom[row].ReplaceAtIndex(col, 'L');
+                            seatStatusChanges++;
+                        }
+
+                        // If the seat is currently Empty and there are 0 occupied nearby
+                        // Then change the seat to Occupied and continue to the next seat
+                        if (thisSeat == 'L' && occupiedNearby == 0)
+                        {
+                            nextRoom[row] = nextRoom[row].ReplaceAtIndex(col, '#');
+                            seatStatusChanges++;
                         }
                     }
                 }
 
-                // Add the seat in its updated state to the room state
-                Seats.Add(thisSeat);
+                // Replace the current room with the completed next room array
+                currRoom = nextRoom.ToArray();
 
-                if (thisSeat.Status != previousState.Seats[i].Status) SeatChanges++;
-            }
-        }
+                emptyCount = currRoom.Sum(s => s.Count(c => c == 'L'));
+                occupiedCount = currRoom.Sum(s => s.Count(c => c == '#'));
+                floorCount = currRoom.Sum(s => s.Count(c => c == '.'));
+                //Console.WriteLine($"\nEmpty: {emptyCount}, Occupied: {occupiedCount}, Floor: {floorCount} Changed: {seatStatusChanges}");
 
-        public void Print()
-        {
-            for (int row = 0; row < Height; row++)
-            {
-                string thisRow = "";
-                for (int col = 0; col < Width; col++)
+                if (seatStatusChanges > 0)
                 {
-                    int index = row * Height + col;
-                    switch (Seats[index].Status)
-                    {
-                        case Seat.SeatStatus.Empty:
-                            thisRow += "L";
-                            break;
-                        case Seat.SeatStatus.Occupied:
-                            thisRow += "#";
-                            break;
-                        default:
-                            thisRow += ".";
-                            break;
-                    }
+                    totalSeatStatusChanges += seatStatusChanges;
                 }
-                Console.WriteLine(thisRow);
+
+                keepGoing = seatStatusChanges > 0;
             }
-        }
-    }
-
-    public class Seat
-    {
-        public enum SeatStatus
-        {
-            Floor,
-            Empty,
-            Occupied
+            return occupiedCount;
         }
 
-        public int X { get; set; }
-        public int Y { get; set; }
-        public SeatStatus Status { get; set; }
-
-        public Seat(int x, int y, char status)
+        // Use the directions x,y array to find the next seat in each direction
+        // For Part 1, just check the next space in each direction
+        // For Part 2, check the next seat in each direction, i.e. keep 'travelling' in direction
+        //             until a seat is reached, so skip floor spaces
+        // If reach out of bound location then stop checking in that direction
+        // Return the number of Occupied '#' seats from all directions
+        private static int CountNearbyOccupiedSeats(int startX, int startY, bool skipFloorSpaces)
         {
-            X = x;
-            Y = y;
-            Status = SetSeatStatus(status);
-        }
+            int occupiedSeatsCount = 0;
 
-        // Copy Constructor
-        public Seat(Seat copy)
-        {
-            X = copy.X;
-            Y = copy.Y;
-            Status = copy.Status;
-        }
-
-        private SeatStatus SetSeatStatus(char status)
-        {
-            switch (status)
+            // Check each direction
+            for (int i = 0; i < directions.Length; i++)
             {
-                case 'L':
-                    return SeatStatus.Empty;
-                case '#':
-                    return SeatStatus.Occupied;
-                case '.':
-                default:
-                    return SeatStatus.Floor;
+                int directionMultiplier = 1;
+                do
+                {
+                    // Get the next X,Y position in the direction 
+                    // Direction Multiplier used to move along direction until a non floor space is reached
+                    int newX = startX + (directionMultiplier * directions[i].x);
+                    int newY = startY + (directionMultiplier * directions[i].y);
+
+                    // Check if the X,Y values fall outside the room bounds
+                    if (newX < 0 || newX >= maxCols) break;
+                    if (newY < 0 || newY >= maxRows) break;
+
+                    // On an occupied seat, increment counter and end loop to move onto next direction check
+                    if (currRoom[newY][newX] == '#')
+                    {
+                        occupiedSeatsCount++;
+                        break;
+                    }
+
+                    // On an empty seat, end loop to move onto next direction check
+                    if (currRoom[newY][newX] == 'L') break;
+
+                    directionMultiplier++;
+                } while (skipFloorSpaces);
             }
+            return occupiedSeatsCount;
         }
     }
 }
