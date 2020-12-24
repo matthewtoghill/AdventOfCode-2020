@@ -8,5 +8,10 @@ namespace AoCHelpers
         {
             return min.CompareTo(value) <= 0 && value.CompareTo(max) <= 0;
         }
+
+        public static int ManhattanDistance(this (int x, int y) startPos, (int x, int y) endPos)
+        {
+            return Math.Abs(startPos.x - endPos.x) + Math.Abs(startPos.y - endPos.y);
+        }
     }
 }
