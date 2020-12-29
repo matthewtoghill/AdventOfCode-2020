@@ -15,6 +15,69 @@ namespace AoCHelpers
             return input != null && input.Length > length ? input.Substring(input.Length - length) : input;
         }
 
+        public static string LeftOf(this string input, char c)
+        {
+            int i = input.IndexOf(c);
+            if (i >= 0) return input.Substring(0, i);
+            return input;
+        }
+
+        public static string LeftOf(this string input, string s)
+        {
+            int i = input.IndexOf(s);
+            if (i >= 0) return input.Substring(0, i);
+            return input;
+        }
+
+        public static string RightOf(this string input, char c)
+        {
+            int i = input.IndexOf(c);
+            if (i == -1) return input;
+            return input.Substring(i + 1);
+        }
+
+        public static string RightOf(this string input, string s)
+        {
+            int i = input.IndexOf(s);
+            if (i == -1) return input;
+            return input.Substring(i + s.Length);
+        }
+
+        public static string RightOfLast(this string input, char c)
+        {
+            int i = input.LastIndexOf(c);
+            if (i == -1) return input;
+            return input.Substring(i + 1);
+        }
+
+        public static string RightOfLast(this string input, string s)
+        {
+            int i = input.LastIndexOf(s);
+            if (i == -1) return input;
+            return input.Substring(i + s.Length);
+        }
+
+        public static string Mid(this string input, int start)
+        {
+            return input.Substring(Math.Min(start, input.Length));
+        }
+
+        public static string Mid(this string input, int start, int count)
+        {
+            return input.Substring(Math.Min(start, input.Length), Math.Min(count, Math.Max(input.Length - start, 0)));
+        }
+
+        public static string GetBetween(this string input, string before, string after)
+        {
+            int beforeIndex = input.IndexOf(before);
+            int startIndex = beforeIndex + before.Length;
+            int afterIndex = input.IndexOf(after, startIndex);
+
+            if (beforeIndex == -1 || afterIndex == -1) return "";
+
+            return input.Substring(startIndex, afterIndex - startIndex);
+        }
+
         public static string StripOut(this string input, char character)
         {
             return input.Replace(character.ToString(), "");
