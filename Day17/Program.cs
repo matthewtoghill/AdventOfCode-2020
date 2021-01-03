@@ -63,7 +63,7 @@ namespace Day17
 
         private static HashSet<(int x, int y, int z)> RunNextCycle3D()
         {
-            // Create a deep copy of the provided list
+            // Copy the active cubes to a new set
             var newCubes = activeCubes3D.ToHashSet();
 
             // Clear the list of cubes that have been checked for the new cycle
@@ -88,8 +88,7 @@ namespace Day17
 
         private static HashSet<(int x, int y, int z, int w)> RunNextCycle4D()
         {
-            // Create a deep copy of the provided list
-            //List<Cube> newCubes = cubes.ConvertAll(c => new Cube(c));
+            // Copy the active cubes to a new set
             var newCubes = activeCubes4D.ToHashSet();
 
             // Clear the list of cubes that have been checked for the new cycle
