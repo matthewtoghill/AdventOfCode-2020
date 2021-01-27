@@ -13,6 +13,16 @@ namespace AoCHelpers
             secondVal = temp;
         }
 
+        public static int IndexOf<T>(this T[] array, T value)
+        {
+            return Array.IndexOf(array, value);
+        }
+
+        public static int FindIndex<T>(this T[] array, Predicate<T> match)
+        {
+            return Array.FindIndex(array, match);
+        }
+
         public static IEnumerable<IEnumerable<T>> Split<T>(this T[] array, int size)
         {
             for (int i = 0; i < (float)array.Length / size; i++)

@@ -126,5 +126,15 @@ namespace AoCHelpers
             sb[index] = c;
             return sb.ToString();
         }
+
+        public static bool IsNullOrWhiteSpace(this string text)
+        {
+            return string.IsNullOrWhiteSpace(text);
+        }
+
+        public static bool IsNotNullOrWhiteSpace(this string text)
+        {
+            return !string.IsNullOrWhiteSpace(text);
+        }
     }
 }
