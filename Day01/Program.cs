@@ -6,8 +6,8 @@ namespace Day01
 {
     class Program
     {
-        private static string[] input = File.ReadAllLines(@"..\..\..\data\day01.txt");
-        private static int requiredValue = 2020;
+        private static readonly string[] input = File.ReadAllLines(@"..\..\..\data\day01.txt");
+        private static readonly int requiredValue = 2020;
         static void Main(string[] args)
         {
             BothParts();
@@ -20,8 +20,7 @@ namespace Day01
             List<int> data = new List<int>();
             foreach (var item in input)
             {
-                int.TryParse(item, out int num);
-                data.Add(num);
+                if (int.TryParse(item, out int num)) data.Add(num);
             }
 
             // Sort Low to High
@@ -30,11 +29,9 @@ namespace Day01
             for (int i = 0; i < data.Count; i++)
             {
                 int a = data[i];
-
-                for (int j = 1; j < data.Count; j++)
+                for (int j = i + 1; j < data.Count; j++)
                 {
                     int b = data[j];
-
                     if (a + b == requiredValue)
                     {
                         Console.WriteLine("Part 1:");
@@ -42,10 +39,9 @@ namespace Day01
                         Console.WriteLine($"{a} * {b} = {a * b}");
                     }
 
-                    for (int k = 2; k < data.Count; k++)
+                    for (int k = j + 1; k < data.Count; k++)
                     {
                         int c = data[k];
-
                         if (a + b + c == requiredValue)
                         {
                             Console.WriteLine("\nPart 2:");
