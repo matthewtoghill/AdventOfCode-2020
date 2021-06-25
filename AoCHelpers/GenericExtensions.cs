@@ -62,6 +62,15 @@ namespace AoCHelpers
             }
         }
 
+        public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> list)
+        {
+            if (list.Count() > 1)
+                return list.SelectMany(
+                     item => GetPermutations(list.Where(i => !i.Equals(item))),
+                     (item, permutation) => new[] { item }.Concat(permutation));
+
+            return new[] { list };
+        }
 
         public static IEnumerable<IEnumerable<T>> GetPermutations<T>(this IEnumerable<T> list, int length)
         {
@@ -70,6 +79,15 @@ namespace AoCHelpers
             return list.GetPermutations(length - 1)
                 .SelectMany(t => list.Where(e => !t.Contains(e)),
                     (t1, t2) => t1.Concat(new T[] { t2 }));
+        }
+
+        public static IEnumerable<IEnumerable<T>> GetPowerSet<T>(this List<T> list)
+        {
+            return from m in Enumerable.Range(0, 1 << list.Count)
+                   select
+                        from i in Enumerable.Range(0, list.Count)
+                        where (m & (1 << i)) != 0
+                        select list[i];
         }
     }
 }
